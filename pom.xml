@@ -7,7 +7,6 @@
 	<packaging>pom</packaging>
 	<modules>
 		<module>evermind-tools-schemaupdate-spring</module>
-		<module>evermind-tools-schemaupdate-camunda</module>
 	</modules>
 	<build>
 		<pluginManagement>
