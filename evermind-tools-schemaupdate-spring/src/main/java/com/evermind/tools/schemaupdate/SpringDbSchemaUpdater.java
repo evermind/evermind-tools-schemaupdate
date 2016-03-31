@@ -2,6 +2,8 @@ package com.evermind.tools.schemaupdate;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.TreeMap;
 
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -63,10 +65,19 @@ public class SpringDbSchemaUpdater extends AbstractDbSchemaUpdater implements In
             loader.setCustomClassLookupPackage(path);
         }
         
+        
+        Map<String,Resource> resourcesByName=new TreeMap<>();
+        // Resourcen finden und nach Namen aufsteigend sortieren
         for (Resource res: resourcePatternResolver.getResources(schemaUpdateResourcePattern))
+        {
+            resourcesByName.put(res.getFilename(), res);
+        }
+        
+        for (Resource res: resourcesByName.values())
         {
             loader.addResource(res.getFilename(),new SingleSpringResourceAccessor(res));
         }
+        
     }
     
     
