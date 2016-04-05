@@ -14,6 +14,7 @@ import com.evermind.tools.schemaupdate.liquibase.LiqibaseHelper;
 import liquibase.Contexts;
 import liquibase.Liquibase;
 import liquibase.changelog.DatabaseChangeLog;
+import liquibase.database.Database;
 
 /**
  * Schema-Updater für Hibernate-Konfigurationen:
@@ -51,21 +52,25 @@ public abstract class AbstractDbSchemaUpdater
     
     abstract void internalLoadDatabaseChangeLog(DatabaseChangeLogLoader loader) throws Exception;
     
-    public void updateSchema(DataSource ds) throws SQLException
+    public void updateSchema(DataSource ds, String optionalSchemaName) throws SQLException
     {
         try (Connection con=ds.getConnection())
         {
-            updateSchema(con);
+            updateSchema(con, optionalSchemaName);
         }
     }
-    public void updateSchema(Connection con) throws SQLException
+    public void updateSchema(Connection con, String optionalSchemaName) throws SQLException
     {
         try
         {
             LOG.debug("Updating schema");
             DatabaseChangeLog changelog=loadDatabaseChangeLog();
             
-            Liquibase liquibase=new Liquibase(changelog, null, LiqibaseHelper.getLiquibaseDatabase(con));
+            Database db=LiqibaseHelper.getLiquibaseDatabase(con);
+            
+            if (optionalSchemaName!=null) db.setDefaultSchemaName(optionalSchemaName);
+            
+            Liquibase liquibase=new Liquibase(changelog, null, db);
             liquibase.update(contexts);
         }
         catch (Exception ex)

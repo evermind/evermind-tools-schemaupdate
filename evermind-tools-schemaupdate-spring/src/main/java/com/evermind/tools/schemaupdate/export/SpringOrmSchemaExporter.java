@@ -74,35 +74,40 @@ public class SpringOrmSchemaExporter
     public void exportSchemaAndUpdates(DatabaseSnapshot referenceState, DatabaseSnapshot actualDatabase) throws SQLException, LiquibaseException, IOException, ParserConfigurationException
     {
         DiffResult diff=LiqibaseHelper.createDiff(referenceState, actualDatabase);
-        if (diff.areEqual())
+        
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        PrintStream out = new PrintStream(baos);
+        
+        DiffOutputControl diffOutputControl=new DiffOutputControl(false,false,false);
+        if (!ignoredTables.isEmpty())
         {
-            LOG.debug("No changes in database");
+            diffOutputControl.setObjectChangeFilter(new TablenameFilter(ignoredTables));
         }
-        else
+        DiffToChangeLog diffToChangeLog = new DiffToChangeLog(diff, diffOutputControl);
+        diffToChangeLog.setIdRoot(new SimpleDateFormat("yyyyMMdd-01").format(System.currentTimeMillis()));
+        
+        if (diffToChangeLog.generateChangeSets().isEmpty())
         {
-            ByteArrayOutputStream baos = new ByteArrayOutputStream();
-            PrintStream out = new PrintStream(baos);
-            
-            DiffOutputControl diffOutputControl=new DiffOutputControl(false,false,false);
-            if (!ignoredTables.isEmpty())
-            {
-                diffOutputControl.setObjectChangeFilter(new TablenameFilter(ignoredTables));
-            }
-            DiffToChangeLog diffToChangeLog = new DiffToChangeLog(diff, diffOutputControl);
-            diffToChangeLog.setIdRoot(new SimpleDateFormat("yyyyMMdd-01").format(System.currentTimeMillis()));
-            diffToChangeLog.print(out, new XMLChangeLogSerializer());
-            String schemaUpdates=baos.toString("utf-8");
-            
-            if (schemaUpdateOutputFile==null)
-            {
-                
-                LOG.warn("Outstanding schemaupdates:\n{}",schemaUpdates);
-            }
+            LOG.debug("No outstanding schemaupdates found.");
+            return;
         }
+        
+        diffToChangeLog.print(out, new XMLChangeLogSerializer());
+        String schemaUpdates=baos.toString("utf-8");
+        
+        if (schemaUpdateOutputFile==null)
+        {
+            LOG.warn("Outstanding schemaupdates:\n{}",schemaUpdates);
+        }
+    }
+
+    public void exportSchemaAndUpdates(LocalContainerEntityManagerFactoryBean entityManagerFactoryBean) throws SQLException, LiquibaseException, IOException, ParserConfigurationException
+    {
+        exportSchemaAndUpdates(entityManagerFactoryBean,null);
     }
     
     
-    public void exportSchemaAndUpdates(LocalContainerEntityManagerFactoryBean entityManagerFactoryBean) throws SQLException, LiquibaseException, IOException, ParserConfigurationException
+    public void exportSchemaAndUpdates(LocalContainerEntityManagerFactoryBean entityManagerFactoryBean, Connection connectionToUse) throws SQLException, LiquibaseException, IOException, ParserConfigurationException
     {
         try
         {
@@ -121,7 +126,14 @@ public class SpringOrmSchemaExporter
             };
             referenceDatabase.setConnection(new JdbcConnection(new LocalHibernateConnection(config)));
             
-            exportSchemaAndUpdates(referenceDatabase,entityManagerFactoryBean.getDataSource());
+            if (connectionToUse==null)
+            {
+                exportSchemaAndUpdates(referenceDatabase,entityManagerFactoryBean.getDataSource());
+            }
+            else
+            {
+                exportSchemaAndUpdates(referenceDatabase,connectionToUse);
+            }
         }
         catch (Exception ex)
         {
