@@ -51,6 +51,11 @@ public abstract class AbstractDbSchemaUpdater
     }
     
     abstract void internalLoadDatabaseChangeLog(DatabaseChangeLogLoader loader) throws Exception;
+
+    public void updateSchema(DataSource ds) throws SQLException
+    {
+        updateSchema(ds,null);
+    }
     
     public void updateSchema(DataSource ds, String optionalSchemaName) throws SQLException
     {
