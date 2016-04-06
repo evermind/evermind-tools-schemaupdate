@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.io.PrintStream;
 import java.sql.Connection;
 import java.sql.DatabaseMetaData;
+import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.text.SimpleDateFormat;
 import java.util.List;
@@ -29,7 +30,7 @@ import liquibase.snapshot.SnapshotGeneratorFactory;
 
 public class LiqibaseHelper
 {
-    public static Database getLiquibaseDatabase(Connection connection) throws LiquibaseException, SQLException
+    public static Database getLiquibaseDatabase(final Connection connection) throws LiquibaseException, SQLException
     {
         DatabaseMetaData meta = connection.getMetaData();
         String driver = meta.getDriverName();
@@ -41,7 +42,23 @@ public class LiqibaseHelper
         }
         if (url.startsWith("jdbc:h2:"))
         {
-            return connect(new H2Database(), connection);
+//            https://liquibase.jira.com/browse/CORE-2718
+            return connect(new H2Database() {
+                @Override
+                protected String getConnectionSchemaName()
+                {
+                    try
+                    {
+                        ResultSet rs=connection.createStatement().executeQuery("SELECT SCHEMA()");
+                        if (rs.next()) return rs.getString(1);
+                    }
+                    catch (SQLException ex)
+                    {
+                        ex.printStackTrace();
+                    }
+                    return super.getConnectionSchemaName();
+                }
+            }, connection);
         }
 
         throw new LiquibaseException("Unable to determine database type for " + driver + " / " + url);
