@@ -2,14 +2,14 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>evermind</groupId>
 	<artifactId>evermind-tools-schemaupdate</artifactId>
-	<version>1.0.0</version>
+	<version>1.0.1-SNAPSHOT</version>
 	<packaging>pom</packaging>
 	<modules>
 		<module>evermind-tools-schemaupdate-spring</module>
 	</modules>
 	<scm>
 		<connection>scm:git:git@github.com:evermind/evermind-tools-schemaupdate.git</connection>
-	  <tag>evermind-tools-schemaupdate-1.0.0</tag>
+	  <tag>HEAD</tag>
   </scm>
 	<build>
 		<pluginManagement>
