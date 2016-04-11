@@ -8,6 +8,9 @@
 	<modules>
 		<module>evermind-tools-schemaupdate-spring</module>
 	</modules>
+	<scm>
+		<connection>scm:git:git@github.com:evermind/evermind-tools-schemaupdate.git</connection>
+	</scm>
 	<build>
 		<pluginManagement>
 			<plugins>
@@ -18,6 +21,17 @@
 						<target>1.7</target>
 						<encoding>UTF-8</encoding>
 					</configuration>
+				</plugin>
+				<plugin> <!-- See http://stackoverflow.com/questions/15166781/mvn-releaseprepare-not-committing-changes-to-pom-xml -->
+					<artifactId>maven-release-plugin</artifactId>
+					<version>2.4.2</version>
+					<dependencies>
+						<dependency>
+							<groupId>org.apache.maven.scm</groupId>
+							<artifactId>maven-scm-provider-gitexe</artifactId>
+							<version>1.8.1</version>
+						</dependency>
+					</dependencies>
 				</plugin>
 			</plugins>
 		</pluginManagement>
