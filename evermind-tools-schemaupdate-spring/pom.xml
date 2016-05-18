@@ -3,7 +3,7 @@
 	<parent>
 		<groupId>evermind</groupId>
 		<artifactId>evermind-tools-schemaupdate</artifactId>
-		<version>1.0.1</version>
+		<version>1.0.2-SNAPSHOT</version>
 	</parent>
 	<artifactId>evermind-tools-schemaupdate-spring</artifactId>
 	<dependencies>
