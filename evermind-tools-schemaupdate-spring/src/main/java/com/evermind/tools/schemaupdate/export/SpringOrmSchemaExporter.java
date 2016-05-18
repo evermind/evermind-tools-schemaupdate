@@ -86,14 +86,15 @@ public class SpringOrmSchemaExporter
         DiffToChangeLog diffToChangeLog = new DiffToChangeLog(diff, diffOutputControl);
         diffToChangeLog.setIdRoot(new SimpleDateFormat("yyyyMMdd-01").format(System.currentTimeMillis()));
         
+        diffToChangeLog.print(out, new XMLChangeLogSerializer());
+        String schemaUpdates=baos.toString("utf-8");
+        
+        // Prüfung muss nach Export erfolgen, da die Nummerierung im Export sonst nicht stimmt
         if (diffToChangeLog.generateChangeSets().isEmpty())
         {
             LOG.debug("No outstanding schemaupdates found.");
             return;
         }
-        
-        diffToChangeLog.print(out, new XMLChangeLogSerializer());
-        String schemaUpdates=baos.toString("utf-8");
         
         if (schemaUpdateOutputFile==null)
         {
