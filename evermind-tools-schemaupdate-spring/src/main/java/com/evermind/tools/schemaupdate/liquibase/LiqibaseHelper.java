@@ -15,6 +15,7 @@ import liquibase.CatalogAndSchema;
 import liquibase.changelog.ChangeSet;
 import liquibase.database.Database;
 import liquibase.database.core.H2Database;
+import liquibase.database.core.HsqlDatabase;
 import liquibase.database.core.MySQLDatabase;
 import liquibase.database.jvm.JdbcConnection;
 import liquibase.diff.DiffGeneratorFactory;
@@ -39,6 +40,10 @@ public class LiqibaseHelper
         if (url.startsWith("jdbc:mysql:"))
         {
             return connect(new MySQLDatabase(), connection);
+        }
+        if (url.startsWith("jdbc:hsqldb:"))
+        {
+            return connect(new HsqlDatabase(), connection);
         }
         if (url.startsWith("jdbc:h2:"))
         {

@@ -53,21 +53,22 @@ public class SpringOrmSchemaExporter
     protected File schemaUpdateOutputFile;
     protected Set<String> ignoredTables=new HashSet<>();
     
-    public void exportSchemaAndUpdates(Database referenceDatabase, Database actualDatabase) throws SQLException, LiquibaseException, IOException, ParserConfigurationException
+    public void exportSchemaAndUpdates(Database referenceDatabase, Database actualDatabase,String optionalSchemaName) throws SQLException, LiquibaseException, IOException, ParserConfigurationException
     {
+        if (optionalSchemaName!=null) actualDatabase.setDefaultSchemaName(optionalSchemaName);
         exportSchemaAndUpdates(LiqibaseHelper.createDatabaseSnapshot(referenceDatabase),LiqibaseHelper.createDatabaseSnapshot(actualDatabase));
     }
     
-    public void exportSchemaAndUpdates(Database referenceDatabase, Connection actualDatabaseConnection) throws SQLException, LiquibaseException, IOException, ParserConfigurationException
+    public void exportSchemaAndUpdates(Database referenceDatabase, Connection actualDatabaseConnection,String optionalSchemaName) throws SQLException, LiquibaseException, IOException, ParserConfigurationException
     {
-        exportSchemaAndUpdates(referenceDatabase,LiqibaseHelper.getLiquibaseDatabase(actualDatabaseConnection));
+        exportSchemaAndUpdates(referenceDatabase,LiqibaseHelper.getLiquibaseDatabase(actualDatabaseConnection),optionalSchemaName);
     }
     
-    public void exportSchemaAndUpdates(Database referenceDatabase, DataSource actualDatabase) throws SQLException, LiquibaseException, IOException, ParserConfigurationException
+    public void exportSchemaAndUpdates(Database referenceDatabase, DataSource actualDatabase, String optionalSchemaName) throws SQLException, LiquibaseException, IOException, ParserConfigurationException
     {
         try (Connection actualDatabaseConnection=actualDatabase.getConnection())
         {
-            exportSchemaAndUpdates(referenceDatabase,actualDatabaseConnection);
+            exportSchemaAndUpdates(referenceDatabase,actualDatabaseConnection,optionalSchemaName);
         }
     }
     
@@ -102,13 +103,13 @@ public class SpringOrmSchemaExporter
         }
     }
 
-    public void exportSchemaAndUpdates(LocalContainerEntityManagerFactoryBean entityManagerFactoryBean) throws SQLException, LiquibaseException, IOException, ParserConfigurationException
+    public void exportSchemaAndUpdates(LocalContainerEntityManagerFactoryBean entityManagerFactoryBean, String optionalSchemaName) throws SQLException, LiquibaseException, IOException, ParserConfigurationException
     {
-        exportSchemaAndUpdates(entityManagerFactoryBean,null);
+        exportSchemaAndUpdates(entityManagerFactoryBean,null, optionalSchemaName);
     }
     
     
-    public void exportSchemaAndUpdates(LocalContainerEntityManagerFactoryBean entityManagerFactoryBean, Connection connectionToUse) throws SQLException, LiquibaseException, IOException, ParserConfigurationException
+    public void exportSchemaAndUpdates(LocalContainerEntityManagerFactoryBean entityManagerFactoryBean, Connection connectionToUse, String optionalSchemaName) throws SQLException, LiquibaseException, IOException, ParserConfigurationException
     {
         try
         {
@@ -129,11 +130,11 @@ public class SpringOrmSchemaExporter
             
             if (connectionToUse==null)
             {
-                exportSchemaAndUpdates(referenceDatabase,entityManagerFactoryBean.getDataSource());
+                exportSchemaAndUpdates(referenceDatabase,entityManagerFactoryBean.getDataSource(), optionalSchemaName);
             }
             else
             {
-                exportSchemaAndUpdates(referenceDatabase,connectionToUse);
+                exportSchemaAndUpdates(referenceDatabase,connectionToUse, optionalSchemaName);
             }
         }
         catch (Exception ex)
