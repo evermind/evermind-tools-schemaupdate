@@ -2,7 +2,6 @@ package com.evermind.tools.schemaupdate;
 
 import java.sql.Connection;
 import java.sql.SQLException;
-import java.util.List;
 
 import javax.sql.DataSource;
 
@@ -39,16 +38,16 @@ public abstract class AbstractDbSchemaUpdater
         this.contexts = new Contexts(contexts);
     }
     
-    protected List<DatabaseChangeLog> databaseChangeLogs;
-    protected synchronized List<DatabaseChangeLog> loadDatabaseChangeLogs() throws Exception
+    protected DatabaseChangeLog databaseChangeLog;
+    protected synchronized DatabaseChangeLog loadDatabaseChangeLog() throws Exception
     {
-        if (databaseChangeLogs==null)
+        if (databaseChangeLog==null)
         {
             DatabaseChangeLogLoader loader=new DatabaseChangeLogLoader();
             internalLoadDatabaseChangeLog(loader);
-            this.databaseChangeLogs=loader.getDatabaseChangeLogs();
+            this.databaseChangeLog=loader.getDatabaseChangeLog();
         }
-        return databaseChangeLogs;
+        return databaseChangeLog;
     }
     
     abstract void internalLoadDatabaseChangeLog(DatabaseChangeLogLoader loader) throws Exception;
@@ -70,17 +69,14 @@ public abstract class AbstractDbSchemaUpdater
         try
         {
             LOG.debug("Updating schema");
-            List<DatabaseChangeLog> changeLogs=loadDatabaseChangeLogs();
+            DatabaseChangeLog changelog=loadDatabaseChangeLog();
             
             Database db=LiqibaseHelper.getLiquibaseDatabase(con);
             
             if (optionalSchemaName!=null) db.setDefaultSchemaName(optionalSchemaName);
             
-            for (DatabaseChangeLog changeLog: changeLogs)
-            {
-                Liquibase liquibase=new Liquibase(changeLog, null, db);
-                liquibase.update(contexts);
-            }
+            Liquibase liquibase=new Liquibase(changelog, null, db);
+            liquibase.update(contexts);
         }
         catch (Exception ex)
         {
