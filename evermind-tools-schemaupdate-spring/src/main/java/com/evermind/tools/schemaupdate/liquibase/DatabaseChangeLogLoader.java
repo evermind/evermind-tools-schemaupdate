@@ -29,34 +29,28 @@ public class DatabaseChangeLogLoader
         return databaseChangeLog;
     }
 
-    protected boolean supportsGlobalPreconditions;
-    
     public void addChangeLog(DatabaseChangeLog changeLog) throws ChangeLogParseException
     {
         if (changeLog==null) return;
         
-         
-        // see liquibase.changelog.DatabaseChangeLog.include(String, boolean, ResourceAccessor)
-        if (changeLog.getPreconditions()!=null && changeLog.getPreconditions().getNestedPreconditions().size()>0)
+        boolean changeLogHasPreconditions=(changeLog.getPreconditions()!=null && changeLog.getPreconditions().getNestedPreconditions().size()>0);
+        
+        for (ChangeSet changeSet : changeLog.getChangeSets())
         {
-            if (supportsGlobalPreconditions)
+            if (changeLogHasPreconditions) // Copy global preconditions to all change sets of this change log
             {
-                if (databaseChangeLog.getPreconditions()==null)
+                if (changeSet.getPreconditions()==null || changeSet.getPreconditions().getNestedPreconditions().size()==0)
                 {
-                    databaseChangeLog.setPreconditions(changeLog.getPreconditions());
+                    // overwrite if there are no existing
+                    changeSet.setPreconditions(changeLog.getPreconditions());
                 }
                 else
                 {
-                    databaseChangeLog.getPreconditions().addNestedPrecondition(changeLog.getPreconditions());
+                    // append to existing preconditions
+                    changeSet.getPreconditions().addNestedPrecondition(changeLog.getPreconditions());
                 }
             }
-            else
-            {
-                throw new ChangeLogParseException("Global preconditions apply to ALL changesets (and ALL changelogs) - therfore global changesets are not supported.");
-            }
-        }
-        for (ChangeSet changeSet : changeLog.getChangeSets())
-        {
+            
             databaseChangeLog.addChangeSet(changeSet);
         }
     }
