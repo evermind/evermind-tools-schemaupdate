@@ -13,28 +13,18 @@ import java.util.Set;
 import javax.sql.DataSource;
 import javax.xml.parsers.ParserConfigurationException;
 
-import org.hibernate.cfg.Configuration;
-import org.hibernate.ejb.Ejb3Configuration;
-import org.hibernate.ejb.EntityManagerFactoryImpl;
-import org.hibernate.internal.SessionFactoryImpl;
-import org.hibernate.service.internal.SessionFactoryServiceRegistryImpl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean;
 
 import com.evermind.tools.schemaupdate.liquibase.LiqibaseHelper;
-import com.evermind.tools.schemaupdate.liquibase.LocalHibernateConnection;
 import com.evermind.tools.schemaupdate.liquibase.TablenameFilter;
 
 import liquibase.database.Database;
-import liquibase.database.jvm.JdbcConnection;
 import liquibase.diff.DiffResult;
 import liquibase.diff.output.DiffOutputControl;
 import liquibase.diff.output.changelog.DiffToChangeLog;
-import liquibase.exception.DatabaseException;
 import liquibase.exception.LiquibaseException;
-import liquibase.ext.hibernate.database.HibernateEjb3Database;
-import liquibase.ext.hibernate.database.connection.HibernateConnection;
 import liquibase.serializer.core.xml.XMLChangeLogSerializer;
 import liquibase.snapshot.DatabaseSnapshot;
 
@@ -114,19 +104,19 @@ public class SpringOrmSchemaExporter
         try
         {
             LOG.debug("Creating schema from hibernate mapping");
-            EntityManagerFactoryImpl emf = (EntityManagerFactoryImpl) entityManagerFactoryBean.getNativeEntityManagerFactory();
-            SessionFactoryImpl sf = emf.getSessionFactory();
-            SessionFactoryServiceRegistryImpl serviceRegistry = (SessionFactoryServiceRegistryImpl) sf.getServiceRegistry();
-            Configuration config = new Ejb3Configuration().configure(entityManagerFactoryBean.getPersistenceUnitInfo(), entityManagerFactoryBean.getJpaPropertyMap()).getHibernateConfiguration();
             
-            Database referenceDatabase=new HibernateEjb3Database() {
-                @Override
-                protected Configuration buildConfiguration(HibernateConnection connection) throws DatabaseException
-                {
-                    return ((LocalHibernateConnection)connection).getCfg();
-                }
-            };
-            referenceDatabase.setConnection(new JdbcConnection(new LocalHibernateConnection(config)));
+            String className=getClass().getPackage().getName()+".HibernateAdapter";
+            IHibernateAdapter hibernateAdapter;
+            try
+            {
+                hibernateAdapter=(IHibernateAdapter)Class.forName(className).newInstance();
+            }
+            catch (Exception ex)
+            {
+                throw new LiquibaseException("Unable to load "+className+" - is an implementation in the classpath?",ex);
+            }
+            
+            Database referenceDatabase=hibernateAdapter.getHibernateDatabaseFromSpring(entityManagerFactoryBean);
             
             if (connectionToUse==null)
             {

@@ -1,4 +1,4 @@
-package com.evermind.tools.schemaupdate.liquibase;
+package com.evermind.tools.schemaupdate.export;
 
 import org.hibernate.cfg.Configuration;
 
