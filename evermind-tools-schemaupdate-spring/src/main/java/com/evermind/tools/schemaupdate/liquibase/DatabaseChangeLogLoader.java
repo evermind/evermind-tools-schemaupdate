@@ -57,7 +57,7 @@ public class DatabaseChangeLogLoader
     
     public void addXmlResource(String filename, ResourceAccessor accessor) throws ChangeLogParseException
     {
-        XMLChangeLogSAXParser parser=new XMLChangeLogSAXParser();
+	XMLChangeLogSAXParserWithLocalSchemaFiles parser=new XMLChangeLogSAXParserWithLocalSchemaFiles();
         addChangeLog(parser.parse(filename, null, accessor));
     }
     
