@@ -14,7 +14,6 @@ import org.hibernate.service.ServiceRegistry;
 import org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean;
 
 import liquibase.database.Database;
-import liquibase.database.ObjectQuotingStrategy;
 import liquibase.database.jvm.JdbcConnection;
 import liquibase.exception.DatabaseException;
 import liquibase.ext.hibernate.database.HibernateEjb3Database;
@@ -68,8 +67,7 @@ public class HibernateAdapter implements IHibernateAdapter
 			}
 		};
 		database.setConnection(new JdbcConnection(new HibernateConnection("hibernate:ejb3:dummy")));
-		database.setObjectQuotingStrategy(ObjectQuotingStrategy.LEGACY);
-
+		
 		return database;
 	}
 
