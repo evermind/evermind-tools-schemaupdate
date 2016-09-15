@@ -69,7 +69,7 @@ public class SpringOrmSchemaExporter
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         PrintStream out = new PrintStream(baos);
         
-        DiffOutputControl diffOutputControl=new DiffOutputControl(false,false,false,null);
+        DiffOutputControl diffOutputControl=new DiffOutputControl(false,false,false);
         if (!ignoredTables.isEmpty())
         {
             diffOutputControl.setObjectChangeFilter(new TablenameFilter(ignoredTables));

@@ -95,7 +95,7 @@ public class LiqibaseHelper
     {
         DiffResult diff = createDiff(referenceState, actualState);
 
-        DiffToChangeLog diffToChangeLog = new DiffToChangeLog(diff, new DiffOutputControl(false,false,false,null));
+        DiffToChangeLog diffToChangeLog = new DiffToChangeLog(diff, new DiffOutputControl(false,false,false));
         return diffToChangeLog.generateChangeSets();
     }
 
@@ -106,7 +106,7 @@ public class LiqibaseHelper
 
     public static void printChangelog(DiffResult diff, ChangeLogSerializer changeLogSerializer, PrintStream out) throws LiquibaseException, SQLException, ParserConfigurationException, IOException
     {
-        DiffToChangeLog diffToChangeLog = new DiffToChangeLog(diff, new DiffOutputControl(false,false,false,null));
+        DiffToChangeLog diffToChangeLog = new DiffToChangeLog(diff, new DiffOutputControl(false,false,false));
         diffToChangeLog.setIdRoot(new SimpleDateFormat("yyyyMMdd-01").format(System.currentTimeMillis()));
         diffToChangeLog.print(out, changeLogSerializer);
     }
