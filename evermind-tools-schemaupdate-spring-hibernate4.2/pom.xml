@@ -3,14 +3,14 @@
 	<parent>
 		<groupId>evermind</groupId>
 		<artifactId>evermind-tools-schemaupdate</artifactId>
-		<version>1.0.2</version>
+		<version>1.0.3-SNAPSHOT</version>
 	</parent>
 	<artifactId>evermind-tools-schemaupdate-spring-hibernate4.2</artifactId>
 	<dependencies>
 		<dependency>
 			<groupId>evermind</groupId>
 			<artifactId>evermind-tools-schemaupdate-spring</artifactId>
-			<version>1.0.2</version>
+			<version>1.0.3-SNAPSHOT</version>
 		</dependency>
 		<dependency>
 			<groupId>org.liquibase.ext</groupId>
